@@ -4,8 +4,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,10 +34,10 @@ import com.kai.app.feature.voice.*
                 BackHandler(enabled = route != "home") { vm.back() }
                 val main = route in listOf("home", "voiceLibrary", "settings")
                 Scaffold(snackbarHost = { SnackbarHost(snackbar) }, bottomBar = {
-                    if (main) NavigationBar {
-                        NavigationBarItem(route == "home", { vm.navigate("home") }, icon = { Icon(Icons.Default.Home, null) }, label = { Text("Percakapan") })
-                        NavigationBarItem(route == "voiceLibrary", { vm.navigate("voiceLibrary") }, icon = { Icon(Icons.Default.PlayArrow, null) }, label = { Text("Suara") })
-                        NavigationBarItem(route == "settings", { vm.navigate("settings") }, icon = { Icon(Icons.Default.Settings, null) }, label = { Text("Pengaturan") })
+                    if (main) NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 0.dp) {
+                        NavigationBarItem(route == "home", { vm.navigate("home") }, icon = { Icon(Icons.Default.ChatBubbleOutline, null) }, label = { Text("Chat") })
+                        NavigationBarItem(route == "voiceLibrary", { vm.navigate("voiceLibrary") }, icon = { Icon(Icons.Default.GraphicEq, null) }, label = { Text("Suara") })
+                        NavigationBarItem(route == "settings", { vm.navigate("settings") }, icon = { Icon(Icons.Default.Settings, null) }, label = { Text("Setelan") })
                     }
                 }, contentWindowInsets = WindowInsets(0, 0, 0, 0)) { padding ->
                     Box(Modifier.fillMaxSize().padding(bottom = padding.calculateBottomPadding())) {

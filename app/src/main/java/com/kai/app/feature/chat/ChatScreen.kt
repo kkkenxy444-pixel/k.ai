@@ -4,6 +4,12 @@ package com.kai.app.feature.chat
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -60,10 +66,17 @@ import kotlinx.coroutines.launch
         if (messages.isNotEmpty() && (nearBottom || messages.last().role == MessageRole.USER)) scroll.scrollToItem(messages.lastIndex + if (messageCount > messages.size) 1 else 0)
     }
     Scaffold(topBar = {
-        TopAppBar(title = { Column {
-            Text(spec.title, style = MaterialTheme.typography.titleMedium, maxLines = 1)
-            Text(if (spec.mode == ChatMode.ROLEPLAY) "ROLEPLAY · ${spec.scenario.genre}" else spec.character.name, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-        } }, navigationIcon = { IconButton(onClick = vm::back) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Kembali") } }, actions = {
+        TopAppBar(title = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(11.dp)) {
+                KaiMonogram(spec.character.name.ifBlank { "K" }, Modifier.size(39.dp), spec.mode == ChatMode.ROLEPLAY)
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(spec.title.ifBlank { spec.character.name }, style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(if (spec.mode == ChatMode.ROLEPLAY) "CERITA  ·  ${spec.scenario.genre.ifBlank { "Roleplay" }}" else "CHAT  ·  ${spec.character.name}",
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface), navigationIcon = { IconButton(onClick = vm::back) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Kembali") } }, actions = {
             Box {
                 IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "Menu percakapan") }
                 DropdownMenu(menu, { menu = false }) {
@@ -76,14 +89,16 @@ import kotlinx.coroutines.launch
             }
         })
     }, bottomBar = {
-        Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 16.dp, vertical = 10.dp)) {
+        Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainerLow)
+             .navigationBarsPadding().imePadding().padding(horizontal = 15.dp, vertical = 10.dp)) {
             if (busy) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("Sedang menulis…", style = MaterialTheme.typography.labelMedium)
                 TextButton(onClick = { vm.graph.chat.cancel(id) }) { Text("Hentikan") }
             }
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(draft, { draft = it.take(32_000); vm.draft(id, draft) }, Modifier.weight(1f),
-                    placeholder = { Text(if (spec.mode == ChatMode.ROLEPLAY) "Tulis tindakan atau dialogmu…" else "Tulis pesan…") }, maxLines = 6)
+                    shape = RoundedCornerShape(23.dp),
+                    placeholder = { Text(if (spec.mode == ChatMode.ROLEPLAY) "Tulis tindakan atau dialogmu…" else "Pesan untuk ${spec.character.name}…") }, maxLines = 6)
                 FilledIconButton(onClick = {
                     if (draft.isNotBlank() && !busy) { val text = draft; draft = ""; vm.send(id, text) }
                 }, enabled = draft.isNotBlank() && !busy, modifier = Modifier.padding(bottom = 3.dp)) { Icon(Icons.AutoMirrored.Filled.Send, "Kirim pesan teks") }
@@ -96,10 +111,15 @@ import kotlinx.coroutines.launch
                     TextButton(onClick = { visibleCount += 100 }, modifier = Modifier.fillMaxWidth()) { Text("Muat pesan sebelumnya (${messageCount - messages.size})") }
                 }
                 if (messages.isEmpty()) item {
-                    Column(Modifier.padding(vertical = 36.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Text(if (spec.mode == ChatMode.ROLEPLAY) spec.scenario.title.ifBlank { "Bab pertama." } else "Halo, aku ${spec.character.name}.", style = MaterialTheme.typography.headlineLarge)
-                        Hint(if (spec.mode == ChatMode.ROLEPLAY) spec.scenario.opening else "Mulai percakapan dengan mengetik pesan. Kepribadian dan konteks sesi ini akan menyertai balasan.")
-                        if (spec.model.isBlank()) TextButton(onClick = { vm.editSession(id) }) { Text("Pilih model untuk memulai") }
+                    Column(Modifier.fillMaxWidth().padding(top = 28.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(13.dp)) {
+                        KaiMonogram(spec.character.name, Modifier.size(80.dp), spec.mode == ChatMode.ROLEPLAY)
+                        Text(if (spec.mode == ChatMode.ROLEPLAY) spec.scenario.title.ifBlank { "Cerita dimulai di sini." } else "Kenalan dengan ${spec.character.name}",
+                            style = MaterialTheme.typography.headlineLarge)
+                        Text(if (spec.mode == ChatMode.ROLEPLAY) spec.scenario.opening.ifBlank { "Tulis tindakan pertamamu untuk memulai cerita." }
+                             else "Tulis pesan pertama. ${spec.character.name} akan merespons sesuai karakter yang kamu buat.",
+                            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (spec.model.isBlank()) Button(onClick = { vm.editSession(id) }) { Text("Pilih model Gemini") }
                     }
                 }
                 items(messages, key = { it.id }) { message ->
@@ -129,12 +149,14 @@ import kotlinx.coroutines.launch
     val ai = message.role == MessageRole.MODEL
     var actions by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxWidth(), horizontalAlignment = if (ai) Alignment.Start else Alignment.End) {
-        Text(if (ai) spec.character.name else "Kamu", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(if (ai) spec.character.name.ifBlank { "Asisten" } else "Kamu", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(7.dp))
         Box {
-            Surface(color = if (ai) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant,
-                shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth(if (ai) 1f else .92f).combinedClickable(onClick = {}, onLongClick = { actions = true })) {
-                Column(Modifier.padding(if (ai) 0.dp else 14.dp)) {
+            Surface(color = if (ai) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.primaryContainer,
+                shape = RoundedCornerShape(21.dp),
+                border = if (ai) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .48f)) else null,
+                modifier = Modifier.fillMaxWidth(if (ai) .96f else .90f).combinedClickable(onClick = {}, onLongClick = { actions = true })) {
+                Column(Modifier.padding(15.dp)) {
                     if (message.text.isNotBlank()) {
                         if (ai && spec.mode == ChatMode.ROLEPLAY) StoryText(message.text, spec.scenario.actors)
                         else Text(formatText(message.text), style = MaterialTheme.typography.bodyLarge)
@@ -160,7 +182,12 @@ import kotlinx.coroutines.launch
                     CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
                     Text("  Membuat VN…", style = MaterialTheme.typography.labelMedium)
                     TextButton(onClick = { vm.graph.chat.cancelVoice(message.id) }) { Text("Batal") }
-                } else TextButton(onClick = { vm.graph.chat.generateVoice(message.id, spec.autoPlay) }) { Text(if (message.audio.isEmpty()) "Ubah ke VN" else "Buat ulang VN") }
+                } else FilledTonalButton(onClick = { vm.graph.chat.generateVoice(message.id, spec.autoPlay) },
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
+                    Icon(Icons.Default.GraphicEq, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(if (message.audio.isEmpty()) "Ubah ke VN" else "Buat ulang VN")
+                }
                 TextButton(onClick = { actions = true }) { Text("Opsi") }
             }
             if (message.audioError.isNotBlank()) Hint(message.audioError, true)

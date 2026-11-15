@@ -4,6 +4,11 @@ package com.kai.app.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -20,15 +25,16 @@ import com.kai.core.model.Trait
 @Composable fun Page(title: String, back: (() -> Unit)? = null, action: @Composable RowScope.() -> Unit = {}, content: @Composable ColumnScope.() -> Unit) {
     Scaffold(topBar = {
         TopAppBar(title = { Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
             navigationIcon = { if (back != null) IconButton(onClick = back) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Kembali") } }, actions = action)
     }) { inset ->
-        Column(Modifier.fillMaxSize().padding(inset).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp).padding(bottom = 32.dp),
+        Column(Modifier.fillMaxSize().padding(inset).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 22.dp).padding(top = 8.dp, bottom = 42.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp), content = content)
     }
 }
 
 @Composable fun Section(title: String, detail: String = "") {
-    Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+    Column(Modifier.padding(top = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         if (detail.isNotBlank()) Text(detail, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
@@ -37,6 +43,7 @@ import com.kai.core.model.Trait
 @Composable fun Field(label: String, value: String, onChange: (String) -> Unit, lines: Int = 1, hint: String = "", max: Int = 8000) {
     OutlinedTextField(value, { onChange(it.take(max)) }, Modifier.fillMaxWidth(), label = { Text(label) },
         minLines = lines, maxLines = if (lines > 1) 8 else 1, singleLine = lines == 1,
+        shape = RoundedCornerShape(17.dp),
         supportingText = if (hint.isNotBlank()) ({ Text(hint) }) else null)
 }
 
@@ -86,4 +93,24 @@ import com.kai.core.model.Trait
     AlertDialog(onDismissRequest = onDismiss, title = { Text(title) }, text = { Field("Teks", value, { value = it }, lines = 3) },
         confirmButton = { TextButton(onClick = { onSave(value); onDismiss() }, enabled = value.isNotBlank()) { Text("Simpan") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } })
+}
+
+/** Shared tonal surface, with semantic content supplied by the caller. */
+@Composable fun KaiPanel(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .52f))) {
+        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
+    }
+}
+
+@Composable fun KaiMonogram(name: String, modifier: Modifier = Modifier, accent: Boolean = false) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(20.dp),
+        color = if (accent) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(name.trim().take(1).uppercase().ifBlank { "K" }, style = MaterialTheme.typography.titleLarge,
+                color = if (accent) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimaryContainer,
+                fontWeight = FontWeight.Bold)
+        }
+    }
 }

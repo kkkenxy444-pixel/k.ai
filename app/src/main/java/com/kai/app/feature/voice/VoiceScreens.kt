@@ -2,6 +2,12 @@
 package com.kai.app.feature.voice
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -20,29 +26,68 @@ import java.io.File
 @Composable fun VoiceLibraryScreen(vm: KaiViewModel) {
     val profiles by vm.voices.collectAsStateWithLifecycle()
     var deleting by remember { mutableStateOf<String?>(null) }
-    Page("Voice Studio", action = { TextButton(onClick = { vm.openVoice(VoiceProfile(name = "Suara baru", model = vm.prefs.value.ttsModel)) }) { Text("Baru") } }) {
-        Text("Suara dengan\nkarakternya sendiri.", style = MaterialTheme.typography.headlineLarge)
-        Hint("Pilih identitas vokal, atur delivery, lalu dengarkan teks uji yang sama. Profil bisa disalin ke karakter atau sesi mana pun.")
-        Section("Mulai dari preset")
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            StudioTraits.voicePresets.forEach { (name, values) -> AssistChip(onClick = { vm.openVoice(VoiceProfile(name = name, model = vm.prefs.value.ttsModel, values = values)) }, label = { Text(name) }) }
+    Page("Voice Studio", action = { TextButton(onClick = { vm.openVoice(VoiceProfile(name = "Suara baru", model = vm.prefs.value.ttsModel)) }) {
+        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp)); Text("Baru")
+    } }) {
+        Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+            Row(Modifier.fillMaxWidth().padding(22.dp), horizontalArrangement = Arrangement.spacedBy(15.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("SUARA MILIKMU", style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .75f))
+                    Text("Bukan sekadar suara.", style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    Text("Atur karakter, intonasi, dan cara AI berbicara.", style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .82f))
+                }
+                Icon(Icons.Default.GraphicEq, contentDescription = null, modifier = Modifier.size(60.dp),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer)
+            }
         }
-        Section("Profil tersimpan", "Sesi memakai salinan profil. Mengedit atau menghapus preset tidak mengubah suara sesi yang sudah ada.")
-        if (profiles.isEmpty()) Hint("Belum ada profil suara. Buat profil pertama dari preset di atas.")
+        Section("Coba karakter suara", "Pilih preset sebagai titik awal, lalu geser tingkat ekspresinya sendiri.")
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            StudioTraits.voicePresets.forEach { (name, values) ->
+                SuggestionChip(onClick = { vm.openVoice(VoiceProfile(name = name, model = vm.prefs.value.ttsModel, values = values)) }, label = { Text(name) })
+            }
+        }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Profil tersimpan", style = MaterialTheme.typography.titleLarge)
+            Text("${profiles.size} suara", style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (profiles.isEmpty()) KaiPanel(Modifier.fillMaxWidth()) {
+            Text("Belum ada profil", style = MaterialTheme.typography.titleMedium)
+            Hint("Buat suara pertama dari preset di atas, atau mulai dari profil kosong.")
+            TextButton(onClick = { vm.openVoice(VoiceProfile(name = "Suara baru", model = vm.prefs.value.ttsModel)) }) { Text("Buat suara") }
+        }
         profiles.forEach { profile ->
-            OutlinedCard(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                    Text(profile.name, style = MaterialTheme.typography.titleMedium)
-                    Hint("${profile.voiceId} · ${profile.model.removePrefix("models/").ifBlank { "Model belum dipilih" }}")
-                    Row {
-                        TextButton(onClick = { vm.openVoice(profile) }) { Text("Edit") }
-                        TextButton(onClick = { vm.duplicateVoice(profile) }) { Text("Duplikat") }
+            Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainerLow,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))) {
+                Column(Modifier.fillMaxWidth().padding(17.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
+                            Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.GraphicEq, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                            }
+                        }
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(profile.name, style = MaterialTheme.typography.titleMedium)
+                            Text("${profile.voiceId}  ·  ${profile.model.removePrefix("models/").ifBlank { "Model belum dipilih" }}",
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                        FilledTonalButton(onClick = { vm.openVoice(profile) }) { Text("Edit suara") }
+                        TextButton(onClick = { vm.duplicateVoice(profile) }) { Text("Salin") }
                         TextButton(onClick = { deleting = profile.id }) { Text("Hapus") }
                     }
                 }
             }
         }
+        Hint("Setiap sesi memakai salinan profil. Mengubah preset tidak mengubah suara sesi yang sudah ada.")
     }
+
     deleting?.let { id -> ConfirmDialog("Hapus preset suara?", "Salinan suara dalam sesi tetap tersedia. Suara custom yang dibuat di proyek Google tidak dihapus oleh tindakan ini.", { deleting = null }) { vm.deleteVoice(id) } }
 }
 
@@ -62,6 +107,20 @@ import java.io.File
     // Protocol capability registry, not a model-selection list. Only officially documented design families.
     val designSupported = TtsCapabilities.supportsVoiceDesign(profile.model)
     Page("Rancang suara", vm::back, action = { TextButton(onClick = vm::saveVoice) { Text("Simpan") } }) {
+        Surface(shape = RoundedCornerShape(26.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
+            Row(Modifier.fillMaxWidth().padding(18.dp), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Icon(Icons.Default.GraphicEq, contentDescription = null, modifier = Modifier.size(42.dp),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Voice Personality", style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer)
+                    Text("Dari lembut dan manja sampai tegas dan ceria. Atur, dengarkan, simpan.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = .82f))
+                }
+            }
+        }
         Field("Nama profil", profile.name, { vm.setVoice(profile.copy(name = it)) }, max = 100)
         ModelField(vm, "Model Voice / TTS", profile.model, "tts") { model ->
             vm.setVoice(profile.copy(model = model.name,
@@ -84,11 +143,16 @@ import java.io.File
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             StudioTraits.voicePresets.forEach { (name, values) -> AssistChip(onClick = { vm.setVoice(profile.copy(values = values)) }, label = { Text(name) }) }
         }
-        Section("Vocal delivery", "Slider 0–100 adalah arahan aplikasi yang diterjemahkan menjadi instruksi suara. Pitch dan kecepatan generasi bersifat panduan, bukan parameter akustik presisi.")
-        StudioTraits.voice.forEach { trait -> TraitSlider(trait, profile.value(trait.key)) { vm.setVoice(profile.with(trait.key, it)) } }
+        Section("Karakter saat berbicara", "Geser untuk menyesuaikan gaya pengucapan. Kamu bisa membuatnya manja, clingy, atau tegas.")
+        KaiPanel(Modifier.fillMaxWidth()) {
+            StudioTraits.voice.forEach { trait ->
+                TraitSlider(trait, profile.value(trait.key)) { vm.setVoice(profile.with(trait.key, it)) }
+            }
+        }
+        Hint("Skala 0–100 diterjemahkan menjadi arahan TTS. Ini bukan pengendali akustik numerik yang dijamin Gemini.")
         Field("Arahan delivery tambahan", profile.description, { vm.setVoice(profile.copy(description = it)) }, 3,
             "Contoh: Bahasa Indonesia natural, nada lembut dan jelas. Jangan meminta peniruan orang nyata tanpa izin.", max = 700)
-        Section("Uji & bandingkan", "Gunakan kalimat yang sama untuk membandingkan dua konfigurasi terakhir. Hasil bisa bervariasi antar-generasi.")
+        Section("Dengarkan hasilnya", "Coba kalimat yang sama untuk membandingkan dua konfigurasi terakhir. Pembuatan audio memakai kuota Gemini.")
         Field("Kalimat uji", testSentence, { testSentence = it }, 3, max = 3000)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = { vm.preview(testSentence) }, enabled = !busy && testSentence.isNotBlank() && profile.model.isNotBlank()) { Text(if (busy) "Membuat audio…" else "Buat pratinjau") }

@@ -18,15 +18,20 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kai.app.ui.*
 import com.kai.core.model.*
 
 @Composable fun OnboardingScreen(vm: KaiViewModel) {
     Page("") {
-        Spacer(Modifier.height(36.dp))
-        Text("k.ai", style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(16.dp))
+        Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+            Box(Modifier.size(66.dp), contentAlignment = Alignment.Center) {
+                Text("k", style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            }
+        }
+        Text("Selamat datang di k.ai", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
         Text("Ruang untuk\ncerita kamu.", style = MaterialTheme.typography.headlineLarge)
         Hint("Buat pendamping dengan kepribadian dan suara pilihanmu. Setiap percakapan punya ruang dan ingatannya sendiri.")
         Section("Milikmu, di perangkatmu", "Karakter dan riwayat disimpan lokal. Tidak perlu akun k.ai.")
@@ -50,14 +55,14 @@ import com.kai.core.model.*
         OutlinedTextField(key, { key = it.take(512) }, label = { Text(if (hasKey) "API key pengganti" else "API key pribadi") },
             singleLine = true, visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(autoCorrectEnabled = false, keyboardType = KeyboardType.Password), modifier = Modifier.fillMaxWidth())
-        Hint("Tempel key lengkap dari AI Studio. Format baru AQ. dan format lama AIza didukung. Jika penyimpanan gagal, teks tetap ada untuk diperbaiki.")
+        Hint("Tempel key lengkap dari AI Studio. Format AQ. dan AIza didukung. Key tidak dibagikan kepada pengguna lain.")
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Button(onClick = { vm.saveKey(key) }, enabled = key.isNotBlank() && !operation.busy) { Text("Simpan key") }
             OutlinedButton(onClick = { vm.testKey(key) }, enabled = (key.isNotBlank() || hasKey) && !operation.busy) { Text("Uji koneksi") }
         }
         OperationBanner(vm)
-        Button(onClick = { vm.navigate("models") }, enabled = hasKey, modifier = Modifier.fillMaxWidth()) { Text("Pilih model Gemini untuk Chat, Roleplay & VN") }
-        OutlinedButton(onClick = vm::refreshModels, enabled = hasKey && !operation.busy, modifier = Modifier.fillMaxWidth()) { Text("Segarkan model") }
+        Button(onClick = { vm.navigate("models") }, enabled = hasKey, modifier = Modifier.fillMaxWidth()) { Text("Pilih model untuk Chat, Roleplay & VN") }
+        OutlinedButton(onClick = vm::refreshModels, enabled = hasKey && !operation.busy, modifier = Modifier.fillMaxWidth()) { Text("Segarkan katalog Gemini") }
         TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, "https://aistudio.google.com/apikey".toUri())) }) { Text("Buat key di Google AI Studio") }
         Hint("k.ai tidak mengaktifkan billing. Katalog model tidak menyatakan hak Free Tier atau sisa kuota. Jika proyekmu sudah memakai billing, permintaan dapat dikenai biaya sesuai pengaturan Google.")
         Hint("Mengganti key dari proyek Google yang sama tidak mereset kuota. Untuk membagikan APK, setiap orang memasukkan key miliknya sendiri.")
@@ -96,14 +101,18 @@ import com.kai.core.model.*
     val prefs by vm.prefs.collectAsStateWithLifecycle()
     val hasKey by vm.hasKey.collectAsStateWithLifecycle()
     val models by vm.models.collectAsStateWithLifecycle()
-    LaunchedEffect(hasKey) {
-        if (hasKey && vm.models.value.isEmpty()) vm.refreshModels()
-    }
+    LaunchedEffect(hasKey) { if (hasKey && vm.models.value.isEmpty()) vm.refreshModels() }
     Page("Pilihan model", vm::back) {
-        Hint("Pilih dari daftar model Gemini yang tersedia untuk API key milikmu. Tidak perlu mengetik identifier model.")
-        if (!hasKey) OutlinedButton(onClick = { vm.navigate("api") }) { Text("Masukkan API key terlebih dahulu") }
-        if (hasKey && models.isEmpty()) Hint("Katalog masih kosong. Model akan dimuat otomatis, atau tekan Segarkan katalog.")
-        Hint("Pilihan ini menjadi default untuk sesi baru. Sesi lama mempertahankan modelnya.")
+        Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+            Column(Modifier.fillMaxWidth().padding(19.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Pilih kemampuan AI-mu", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                Text("Daftar model dimuat dari Gemini milikmu. Cukup pilih, tidak perlu memasukkan nama model manual.",
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .85f))
+            }
+        }
+        if (!hasKey) OutlinedButton(onClick = { vm.navigate("api") }) { Text("Masukkan API key dahulu") }
+        if (hasKey && models.isEmpty()) Hint("Katalog masih kosong. Model akan dimuat otomatis atau tekan Segarkan katalog.")
+        Hint("Pengaturan ini dipakai untuk sesi baru. Sesi lama mempertahankan pilihannya.")
         ModelField(vm, "Normal Chat", prefs.normalModel, "text") { vm.preference("normalModel", it.name) }
         ModelField(vm, "Roleplay", prefs.roleplayModel, "text") { vm.preference("roleplayModel", it.name) }
         ModelField(vm, "Voice / TTS", prefs.ttsModel, "tts") { vm.preference("ttsModel", it.name) }
@@ -117,7 +126,12 @@ import com.kai.core.model.*
     var open by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
         Text(label, style = MaterialTheme.typography.labelLarge)
-        OutlinedButton(onClick = { open = true }, modifier = Modifier.fillMaxWidth()) { Text(selected.removePrefix("models/").ifBlank { "Pilih model" }) }
+        FilledTonalButton(onClick = { open = true }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(selected.removePrefix("models/").ifBlank { "Ketuk untuk memilih model" })
+                Text("Pilih", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
+            }
+        }
     }
     if (open) ModelPicker(vm, kind, { open = false }) { onSelect(it); open = false }
 }
@@ -142,7 +156,9 @@ import com.kai.core.model.*
             if (filtered.isEmpty()) Hint("Belum ada model yang sesuai. Tambahkan key, segarkan katalog, atau tampilkan semua.")
             LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(filtered, key = { it.name }) { model ->
-                    OutlinedCard(onClick = { onSelect(model) }, modifier = Modifier.fillMaxWidth()) {
+                    Card(onClick = { onSelect(model) }, modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                        shape = RoundedCornerShape(20.dp)) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                             Text(model.displayName.ifBlank { model.id }, style = MaterialTheme.typography.titleMedium)
                             Text(model.name, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)

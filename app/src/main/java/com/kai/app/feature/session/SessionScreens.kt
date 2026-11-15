@@ -2,6 +2,15 @@
 package com.kai.app.feature.session
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.AutoStories
+import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kai.app.feature.settings.ModelField
 import com.kai.app.ui.*
@@ -24,67 +34,148 @@ import com.kai.core.model.*
     val templates by vm.templates.collectAsStateWithLifecycle()
     val hasKey by vm.hasKey.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
+    var filter by rememberSaveable { mutableStateOf("Semua") }
     var deleting by remember { mutableStateOf<String?>(null) }
     var templateSheet by remember { mutableStateOf(false) }
-    Scaffold(topBar = { TopAppBar(title = { Text("k.ai", style = MaterialTheme.typography.headlineLarge) }) }) { inset ->
-        LazyColumn(Modifier.fillMaxSize().padding(inset), contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            item {
-                Text("Percakapanmu.", style = MaterialTheme.typography.headlineLarge)
-                Spacer(Modifier.height(8.dp))
-                Hint("Satu ruang untuk setiap karakter dan cerita.")
-            }
-            item {
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(onClick = { vm.newSession(ChatMode.NORMAL) }, modifier = Modifier.weight(1f)) { Text("Chat baru") }
-                    OutlinedButton(onClick = { vm.newSession(ChatMode.ROLEPLAY) }, modifier = Modifier.weight(1f)) { Text("Cerita baru") }
+    val visible = sessions.filter { row ->
+        val spec = row.spec()
+        "${row.session.title} ${spec.character.name} ${spec.scenario.title}".contains(query, true) &&
+            (filter == "Semua" || (filter == "Chat" && spec.mode == ChatMode.NORMAL) || (filter == "Roleplay" && spec.mode == ChatMode.ROLEPLAY))
+    }
+    Scaffold(topBar = {
+        TopAppBar(
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Surface(shape = RoundedCornerShape(11.dp), color = MaterialTheme.colorScheme.primary) {
+                        Box(Modifier.size(32.dp), contentAlignment = Alignment.Center) {
+                            Text("k", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.titleLarge)
+                        }
+                    }
+                    Text("k.ai", style = MaterialTheme.typography.titleLarge)
                 }
-                if (templates.isNotEmpty()) TextButton(onClick = { templateSheet = true }) { Text("Mulai dari template karakter") }
-                if (hasKey) TextButton(onClick = { vm.navigate("models") }) { Text("Pilih / ganti model Gemini") }
+            },
+            actions = {
+                TextButton(onClick = { vm.navigate("models") }, enabled = hasKey) {
+                    Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(5.dp)); Text("Model")
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
+        )
+    }, contentWindowInsets = WindowInsets(0, 0, 0, 0)) { inset ->
+        LazyColumn(Modifier.fillMaxSize().padding(inset),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 34.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp)) {
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Text("RUANG PERSONAL", style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        letterSpacing = 1.7.sp)
+                    Text("Setiap karakter,\npunya ceritanya.", style = MaterialTheme.typography.headlineLarge)
+                    Text("Buat teman ngobrol atau mulai dunia cerita baru. Semua tersimpan di perangkatmu.",
+                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
-            if (!hasKey) item {
-                OutlinedCard(onClick = { vm.navigate("api") }, modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Tambahkan key Gemini", style = MaterialTheme.typography.titleMedium)
-                        Hint("Kamu tetap bisa menyiapkan karakter sebelum menghubungkan API.")
+            item {
+                Surface(shape = RoundedCornerShape(27.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+                    Row(Modifier.fillMaxWidth().padding(20.dp), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                            Text("MULAI DARI SINI", style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .76f))
+                            Text("Siapa yang ingin kamu temui?", style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Text("Atur nama, sifat, dan suaranya sendiri.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .8f))
+                        }
+                        Icon(Icons.Default.ChatBubbleOutline, contentDescription = null,
+                            modifier = Modifier.size(46.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .8f))
                     }
                 }
             }
-            if (sessions.isNotEmpty()) item { Field("Cari percakapan", query, { query = it }) }
-            val visible = sessions.filter { "${it.session.title} ${it.spec().character.name}".contains(query, true) }
-            items(visible, key = { it.session.id }) { record ->
-                val spec = record.spec()
-                var menu by remember { mutableStateOf(false) }
-                Column {
-                    Row(Modifier.fillMaxWidth().clickable { vm.openSession(spec.id) }.padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.primaryContainer) {
-                            Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) { Text(spec.character.name.take(1).uppercase(), style = MaterialTheme.typography.titleLarge) }
+            item {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    KaiStartTile("Chat baru", "Karakter personal", false, Modifier.weight(1f)) { vm.newSession(ChatMode.NORMAL) }
+                    KaiStartTile("Roleplay", "Buat alur cerita", true, Modifier.weight(1f)) { vm.newSession(ChatMode.ROLEPLAY) }
+                }
+            }
+            if (!hasKey) item {
+                KaiPanel(Modifier.fillMaxWidth()) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Text("Hubungkan Gemini", style = MaterialTheme.typography.titleMedium)
+                            Hint("Tambahkan API key gratis milikmu untuk mulai berkirim pesan.")
                         }
-                        Column(Modifier.weight(1f).padding(start = 14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text(spec.title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text("${if (spec.mode == ChatMode.ROLEPLAY) "ROLEPLAY" else "CHAT"}  ·  ${spec.character.name}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Icons.Default.ArrowForward, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary)
+                    }
+                    Button(onClick = { vm.navigate("api") }, modifier = Modifier.fillMaxWidth()) { Text("Atur API key") }
+                }
+            }
+            item {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column {
+                        Text("Percakapan", style = MaterialTheme.typography.titleLarge)
+                        Text("${sessions.size} sesi tersimpan", style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    if (templates.isNotEmpty()) TextButton(onClick = { templateSheet = true }) { Text("Template") }
+                }
+            }
+            if (sessions.isNotEmpty()) item {
+                OutlinedTextField(query, { query = it }, modifier = Modifier.fillMaxWidth(),
+                    singleLine = true, shape = RoundedCornerShape(18.dp),
+                    placeholder = { Text("Cari karakter atau cerita") },
+                    leadingIcon = { Icon(Icons.Default.ChatBubbleOutline, contentDescription = null) })
+            }
+            item {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("Semua", "Chat", "Roleplay").forEach { label ->
+                        FilterChip(selected = filter == label, onClick = { filter = label }, label = { Text(label) },
+                            shape = RoundedCornerShape(50))
+                    }
+                }
+            }
+            items(visible, key = { it.session.id }) { row ->
+                val spec = row.spec()
+                var menu by remember { mutableStateOf(false) }
+                Surface(onClick = { vm.openSession(spec.id) }, shape = RoundedCornerShape(23.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f))) {
+                    Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(13.dp)) {
+                        KaiMonogram(spec.character.name.ifBlank { spec.title }, Modifier.size(55.dp), spec.mode == ChatMode.ROLEPLAY)
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(spec.title.ifBlank { spec.character.name.ifBlank { "Percakapan baru" } },
+                                style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(if (spec.mode == ChatMode.ROLEPLAY) "CERITA  ·  ${spec.scenario.genre.ifBlank { "Roleplay" }}" else "CHAT  ·  ${spec.character.name}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                         Box {
                             IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "Menu sesi") }
-                            DropdownMenu(menu, { menu = false }) {
-                                DropdownMenuItem(text = { Text("Edit / ganti nama") }, onClick = { menu = false; vm.openSession(spec.id); vm.editSession(spec.id) })
+                            DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                                DropdownMenuItem(text = { Text("Edit karakter & model") }, onClick = { menu = false; vm.editSession(spec.id) })
                                 DropdownMenuItem(text = { Text("Duplikat sesi") }, onClick = { menu = false; vm.duplicate(spec.id) })
-                                DropdownMenuItem(text = { Text("Simpan karakter sebagai template") }, onClick = { menu = false; vm.launch { vm.repo.template(spec); vm.notify("Template tersimpan.") } })
+                                DropdownMenuItem(text = { Text("Jadikan template") }, onClick = { menu = false; vm.launch { vm.repo.template(spec); vm.notify("Template tersimpan.") } })
                                 DropdownMenuItem(text = { Text("Hapus sesi") }, onClick = { menu = false; deleting = spec.id })
                             }
                         }
                     }
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
             if (visible.isEmpty()) item {
-                Column(Modifier.padding(vertical = 36.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(if (query.isBlank()) "Belum ada percakapan." else "Tidak ada yang cocok.", style = MaterialTheme.typography.titleLarge)
-                    Hint(if (query.isBlank()) "Mulai dengan nama, kepribadian, dan suara yang kamu pilih sendiri." else "Coba kata pencarian lain.")
+                KaiPanel(Modifier.fillMaxWidth()) {
+                    Text(if (sessions.isEmpty()) "Belum ada cerita di sini" else "Tidak ada yang cocok", style = MaterialTheme.typography.titleMedium)
+                    Hint(if (sessions.isEmpty()) "Mulai dari Chat baru atau Roleplay. Karaktermu nanti akan muncul di halaman ini." else "Coba gunakan nama atau filter lain.")
+                    if (sessions.isEmpty()) TextButton(onClick = { vm.newSession(ChatMode.NORMAL) }) { Text("Buat karakter pertama") }
                 }
             }
         }
     }
-    deleting?.let { id -> ConfirmDialog("Hapus sesi?", "Percakapan, karakter sesi ini, memori, dan VN akan dihapus. Sesi lain tidak berubah.", { deleting = null }) { vm.deleteSession(id) } }
+    deleting?.let { id -> ConfirmDialog("Hapus sesi?", "Percakapan, karakter, memori, dan VN sesi ini akan dihapus.", { deleting = null }) { vm.deleteSession(id) } }
     if (templateSheet) ModalBottomSheet(onDismissRequest = { templateSheet = false }) {
         LazyColumn(Modifier.fillMaxWidth().padding(24.dp)) {
             item { Section("Template karakter", "Setiap sesi menerima salinan independen.") }
@@ -94,6 +185,22 @@ import com.kai.core.model.*
                     TextButton(onClick = { vm.launch { vm.repo.dao.deleteTemplate(row.id) } }) { Text("Hapus") }
                 }
             }
+        }
+    }
+}
+
+@Composable private fun KaiStartTile(title: String, subtitle: String, roleplay: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Surface(onClick = onClick, modifier = modifier, shape = RoundedCornerShape(22.dp),
+        color = if (roleplay) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh) {
+        Column(Modifier.fillMaxWidth().padding(17.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            Icon(if (roleplay) Icons.Default.AutoStories else Icons.Default.ChatBubbleOutline,
+                contentDescription = null, modifier = Modifier.size(25.dp),
+                tint = if (roleplay) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.height(10.dp))
+            Text(title, style = MaterialTheme.typography.titleMedium,
+                color = if (roleplay) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall,
+                color = if (roleplay) MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = .8f) else MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
