@@ -14,6 +14,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.semantics.semantics
@@ -104,11 +106,29 @@ import com.kai.core.model.Trait
     }
 }
 
+/** Hero panel: amber by default, moon-lavender when the content is about stories. */
+@Composable fun KaiHero(title: String, detail: String, modifier: Modifier = Modifier, accent: Boolean = false, icon: ImageVector? = null) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(26.dp),
+        color = if (accent) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer) {
+        Row(Modifier.fillMaxWidth().padding(20.dp), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(15.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(title, style = MaterialTheme.typography.headlineMedium,
+                    color = if (accent) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimaryContainer)
+                Text(detail, style = MaterialTheme.typography.bodyMedium,
+                    color = (if (accent) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimaryContainer).copy(alpha = .82f))
+            }
+            if (icon != null) Icon(icon, contentDescription = null, modifier = Modifier.size(44.dp),
+                tint = (if (accent) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimaryContainer).copy(alpha = .85f))
+        }
+    }
+}
+
 @Composable fun KaiMonogram(name: String, modifier: Modifier = Modifier, accent: Boolean = false) {
     Surface(modifier = modifier, shape = RoundedCornerShape(20.dp),
         color = if (accent) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer) {
         Box(contentAlignment = Alignment.Center) {
-            Text(name.trim().take(1).uppercase().ifBlank { "K" }, style = MaterialTheme.typography.titleLarge,
+            Text(name.trim().take(1).uppercase().ifBlank { "K" }, style = MaterialTheme.typography.titleLarge.copy(fontFamily = FontFamily.Serif),
                 color = if (accent) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimaryContainer,
                 fontWeight = FontWeight.Bold)
         }

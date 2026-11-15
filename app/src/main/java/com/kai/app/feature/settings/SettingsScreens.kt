@@ -26,9 +26,9 @@ import com.kai.core.model.*
 @Composable fun OnboardingScreen(vm: KaiViewModel) {
     Page("") {
         Spacer(Modifier.height(16.dp))
-        Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-            Box(Modifier.size(66.dp), contentAlignment = Alignment.Center) {
-                Text("k", style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+        Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primary) {
+            Box(Modifier.size(72.dp), contentAlignment = Alignment.Center) {
+                Text("k", style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.onPrimary)
             }
         }
         Text("Selamat datang di k.ai", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
@@ -103,13 +103,8 @@ import com.kai.core.model.*
     val models by vm.models.collectAsStateWithLifecycle()
     LaunchedEffect(hasKey) { if (hasKey && vm.models.value.isEmpty()) vm.refreshModels() }
     Page("Pilihan model", vm::back) {
-        Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-            Column(Modifier.fillMaxWidth().padding(19.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Pilih kemampuan AI-mu", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                Text("Daftar model dimuat dari Gemini milikmu. Cukup pilih, tidak perlu memasukkan nama model manual.",
-                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .85f))
-            }
-        }
+        KaiHero(title = "Pilih kemampuan AI-mu",
+            detail = "Daftar model dimuat dari Gemini milikmu. Cukup pilih, tanpa menulis nama model manual.")
         if (!hasKey) OutlinedButton(onClick = { vm.navigate("api") }) { Text("Masukkan API key dahulu") }
         if (hasKey && models.isEmpty()) Hint("Katalog masih kosong. Model akan dimuat otomatis atau tekan Segarkan katalog.")
         Hint("Pengaturan ini dipakai untuk sesi baru. Sesi lama mempertahankan pilihannya.")

@@ -28,21 +28,9 @@ import java.io.File
     Page("Voice Studio", action = { TextButton(onClick = { vm.openVoice(VoiceProfile(name = "Kawaii • Leda", model = vm.prefs.value.ttsModel)) }) {
         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp)); Text("Baru")
     } }) {
-        Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-            Row(Modifier.fillMaxWidth().padding(22.dp), horizontalArrangement = Arrangement.spacedBy(15.dp),
-                verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("SUARA MILIKMU", style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .75f))
-                    Text("Bukan sekadar suara.", style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer)
-                    Text("Atur karakter, intonasi, dan cara AI berbicara.", style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .82f))
-                }
-                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(60.dp),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer)
-            }
-        }
+        KaiHero(title = "Bukan sekadar suara.",
+            detail = "Atur karakter, intonasi, dan cara AI berbicara.",
+            accent = true, icon = Icons.Default.PlayArrow)
         Section("Coba karakter suara", "Pilih preset sebagai titik awal, lalu geser tingkat ekspresinya sendiri.")
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
             StudioTraits.voicePresets.forEach { (name, values) ->

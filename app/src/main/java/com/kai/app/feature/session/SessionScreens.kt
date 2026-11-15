@@ -11,6 +11,8 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -68,31 +70,17 @@ import com.kai.core.model.*
             verticalArrangement = Arrangement.spacedBy(18.dp)) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                    Text("RUANG PERSONAL", style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        letterSpacing = 1.7.sp)
+                    Text("Ruang personal", style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary)
                     Text("Setiap karakter,\npunya ceritanya.", style = MaterialTheme.typography.headlineLarge)
                     Text("Buat teman ngobrol atau mulai dunia cerita baru. Semua tersimpan di perangkatmu.",
                         style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             item {
-                Surface(shape = RoundedCornerShape(27.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-                    Row(Modifier.fillMaxWidth().padding(20.dp), verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                            Text("MULAI DARI SINI", style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .76f))
-                            Text("Siapa yang ingin kamu temui?", style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            Text("Atur nama, sifat, dan suaranya sendiri.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .8f))
-                        }
-                        Icon(Icons.Default.Home, contentDescription = null,
-                            modifier = Modifier.size(46.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .8f))
-                    }
-                }
+                KaiHero(title = "Siapa yang ingin kamu temui?",
+                    detail = "Atur nama, sifat, dan suaranya sendiri.",
+                    icon = Icons.Default.Person)
             }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -128,7 +116,7 @@ import com.kai.core.model.*
                 OutlinedTextField(query, { query = it }, modifier = Modifier.fillMaxWidth(),
                     singleLine = true, shape = RoundedCornerShape(18.dp),
                     placeholder = { Text("Cari karakter atau cerita") },
-                    leadingIcon = { Icon(Icons.Default.Home, contentDescription = null) })
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) })
             }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -193,7 +181,7 @@ import com.kai.core.model.*
     Surface(onClick = onClick, modifier = modifier, shape = RoundedCornerShape(22.dp),
         color = if (roleplay) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh) {
         Column(Modifier.fillMaxWidth().padding(17.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-            Icon(if (roleplay) Icons.Default.PlayArrow else Icons.Default.Home,
+            Icon(if (roleplay) Icons.Default.PlayArrow else Icons.Default.Person,
                 contentDescription = null, modifier = Modifier.size(25.dp),
                 tint = if (roleplay) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.primary)
             Spacer(Modifier.height(10.dp))

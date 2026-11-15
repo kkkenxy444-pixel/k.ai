@@ -1,6 +1,7 @@
 package com.kai.app.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,32 +13,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
+// Night Studio: dark-first indigo surfaces, an amber stage light for actions and voice,
+// and a moon-lavender tone reserved for roleplay and stories. Serif carries the story voice.
 private val DarkColors = darkColorScheme(
-    primary = Color(0xFFCBB9FF), onPrimary = Color(0xFF30204E),
-    primaryContainer = Color(0xFF423361), onPrimaryContainer = Color(0xFFF0E8FF),
-    secondary = Color(0xFFFFC4B6), onSecondary = Color(0xFF52271F),
-    secondaryContainer = Color(0xFF4C333F), onSecondaryContainer = Color(0xFFFFE2D8),
-    background = Color(0xFF171622), surface = Color(0xFF171622),
-    surfaceContainerLow = Color(0xFF201E2D), surfaceContainer = Color(0xFF292638),
-    surfaceContainerHigh = Color(0xFF353045), surfaceVariant = Color(0xFF383146),
-    onBackground = Color(0xFFF6F1FF), onSurface = Color(0xFFF6F1FF),
-    onSurfaceVariant = Color(0xFFC1B9CD), outline = Color(0xFF8A8095),
-    outlineVariant = Color(0xFF494153), error = Color(0xFFFFB7B0),
+    primary = Color(0xFFF2B75C), onPrimary = Color(0xFF271B03),
+    primaryContainer = Color(0xFF4A3413), onPrimaryContainer = Color(0xFFFFDFA8),
+    secondary = Color(0xFFC9B8F2), onSecondary = Color(0xFF241A40),
+    secondaryContainer = Color(0xFF392D58), onSecondaryContainer = Color(0xFFE9E1FF),
+    background = Color(0xFF0F0E17), surface = Color(0xFF0F0E17),
+    surfaceContainerLow = Color(0xFF191727), surfaceContainer = Color(0xFF211E31),
+    surfaceContainerHigh = Color(0xFF2B2740), surfaceVariant = Color(0xFF3B3554),
+    onBackground = Color(0xFFF0EDF6), onSurface = Color(0xFFF0EDF6),
+    onSurfaceVariant = Color(0xFFB4ACC6), outline = Color(0xFF847B9B),
+    outlineVariant = Color(0xFF3B3554), error = Color(0xFFFFB4AB),
+    onError = Color(0xFF5C1109), errorContainer = Color(0xFF7A2216), onErrorContainer = Color(0xFFFFDAD5),
 )
 private val LightColors = lightColorScheme(
-    primary = Color(0xFF67509B), onPrimary = Color.White,
-    primaryContainer = Color(0xFFE9DFFF), onPrimaryContainer = Color(0xFF342451),
-    secondary = Color(0xFF90574A), onSecondary = Color.White,
-    secondaryContainer = Color(0xFFFFE4DA), onSecondaryContainer = Color(0xFF4C271F),
-    background = Color(0xFFFAF8FE), surface = Color(0xFFFAF8FE),
-    surfaceContainerLow = Color(0xFFF3EFFA), surfaceContainer = Color(0xFFEDE8F5),
-    surfaceContainerHigh = Color(0xFFE4DDEC), surfaceVariant = Color(0xFFE9E1F0),
-    onBackground = Color(0xFF292333), onSurface = Color(0xFF292333),
-    onSurfaceVariant = Color(0xFF655B70), outline = Color(0xFF82778D),
-    outlineVariant = Color(0xFFD9D0E0), error = Color(0xFFAE312E),
+    primary = Color(0xFF8A5A14), onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFFFDFAE), onPrimaryContainer = Color(0xFF2C1E04),
+    secondary = Color(0xFF5A4A8C), onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFE9E1FF), onSecondaryContainer = Color(0xFF241A40),
+    background = Color(0xFFFAF8F3), surface = Color(0xFFFAF8F3),
+    surfaceContainerLow = Color(0xFFF2EFE7), surfaceContainer = Color(0xFFEAE6DC),
+    surfaceContainerHigh = Color(0xFFE1DCCF), surfaceVariant = Color(0xFFE5DFD2),
+    onBackground = Color(0xFF211D2E), onSurface = Color(0xFF211D2E),
+    onSurfaceVariant = Color(0xFF675F76), outline = Color(0xFF7E7490),
+    outlineVariant = Color(0xFFD9D2C4), error = Color(0xFF9C4137),
+    onError = Color(0xFFFFFFFF), errorContainer = Color(0xFFFFDAD5), onErrorContainer = Color(0xFF410002),
 )
 
 @Composable fun KaiTheme(mode: String, content: @Composable () -> Unit) {
@@ -46,17 +51,22 @@ private val LightColors = lightColorScheme(
     LaunchedEffect(activity, dark) {
         activity?.enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.auto(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT) { dark },
-            navigationBarStyle = SystemBarStyle.auto(0xFFE5EAE3.toInt(), 0xFF101416.toInt()) { dark },
+            navigationBarStyle = SystemBarStyle.auto(0xFFFAF8F3.toInt(), 0xFF0F0E17.toInt()) { dark },
         )
     }
     MaterialTheme(colorScheme = if (dark) DarkColors else LightColors,
-        shapes = Shapes(small = androidx.compose.foundation.shape.RoundedCornerShape(12.dp), medium = androidx.compose.foundation.shape.RoundedCornerShape(18.dp), large = androidx.compose.foundation.shape.RoundedCornerShape(24.dp), extraLarge = androidx.compose.foundation.shape.RoundedCornerShape(30.dp)),
+        shapes = Shapes(small = RoundedCornerShape(12.dp), medium = RoundedCornerShape(16.dp), large = RoundedCornerShape(22.dp), extraLarge = RoundedCornerShape(28.dp)),
         typography = Typography(
-            displaySmall = TextStyle(fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Medium, fontSize = 36.sp, lineHeight = 42.sp, letterSpacing = (-1).sp),
-            headlineLarge = TextStyle(fontWeight = FontWeight.Medium, fontSize = 32.sp, lineHeight = 39.sp, letterSpacing = (-.6).sp),
-            titleLarge = TextStyle(fontWeight = FontWeight.Medium, fontSize = 22.sp, lineHeight = 28.sp),
+            displaySmall = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.Medium, fontSize = 36.sp, lineHeight = 43.sp, letterSpacing = (-.5).sp),
+            headlineLarge = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.Medium, fontSize = 30.sp, lineHeight = 38.sp, letterSpacing = (-.4).sp),
+            headlineMedium = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.Medium, fontSize = 25.sp, lineHeight = 32.sp, letterSpacing = (-.3).sp),
+            titleLarge = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 21.sp, lineHeight = 27.sp),
+            titleMedium = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp, lineHeight = 22.sp),
             bodyLarge = TextStyle(fontSize = 16.sp, lineHeight = 25.sp),
             bodyMedium = TextStyle(fontSize = 14.sp, lineHeight = 21.sp),
+            bodySmall = TextStyle(fontSize = 12.sp, lineHeight = 17.sp),
             labelLarge = TextStyle(fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp),
+            labelMedium = TextStyle(fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp),
+            labelSmall = TextStyle(fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 15.sp),
         ), content = content)
 }

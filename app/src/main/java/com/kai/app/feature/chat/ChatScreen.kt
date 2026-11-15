@@ -153,7 +153,7 @@ import kotlinx.coroutines.launch
         Spacer(Modifier.height(7.dp))
         Box {
             Surface(color = if (ai) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(21.dp),
+                shape = if (ai) RoundedCornerShape(6.dp, 21.dp, 21.dp, 21.dp) else RoundedCornerShape(21.dp, 6.dp, 21.dp, 21.dp),
                 border = if (ai) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .48f)) else null,
                 modifier = Modifier.fillMaxWidth(if (ai) .96f else .90f).combinedClickable(onClick = {}, onLongClick = { actions = true })) {
                 Column(Modifier.padding(15.dp)) {
