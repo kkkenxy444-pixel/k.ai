@@ -159,7 +159,12 @@ class ChatEngine(
                     if (player.state.value.owner == messageId) player.stop()
                     repo.dao.upsertMessage(latest.copy(audio = generated.toList(), audioGenerating = false, audioError = "").entity())
                     audio.delete(existing.audio.map { it.fileName })
-                    if (autoPlay && player.foreground) player.play(messageId, generated.map { audio.file(it.fileName) })
+                    if (autoPlay && player.foreground) player.play(
+                        messageId,
+                        generated.map { audio.file(it.fileName) },
+                        generated.map { it.profileSnapshot.playbackSpeed() },
+                        generated.firstOrNull()?.profileSnapshot?.playbackSpeed() ?: 1f
+                    )
                 } else audio.delete(generated.map { it.fileName })
             } catch (e: CancellationException) {
                 withContext(NonCancellable) {

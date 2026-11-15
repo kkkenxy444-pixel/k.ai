@@ -19,6 +19,8 @@ class KaiPlayer(context: Context, private val scope: CoroutineScope) {
     private val mutable = MutableStateFlow(PlaybackState())
     val state = mutable.asStateFlow()
     private var ticker: Job? = null
+    private var trackSpeeds: List<Float> = emptyList()
+    private var defaultTrackSpeed: Float = 1f
     var foreground: Boolean = false
         private set
     init {
@@ -27,18 +29,27 @@ class KaiPlayer(context: Context, private val scope: CoroutineScope) {
                 publish()
                 updateTicker()
             }
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                val speed = trackSpeeds.getOrNull(player.currentMediaItemIndex) ?: defaultTrackSpeed
+                player.setPlaybackSpeed(speed)
+                publish()
+            }
             override fun onPlayerError(error: PlaybackException) { mutable.value = mutable.value.copy(playing = false, loading = false, error = "Audio tidak dapat diputar. Coba buat ulang VN.") }
         })
     }
     fun setForeground(value: Boolean) { foreground = value; if (!value) pause() }
-    fun play(owner: String, files: List<File>) {
+    fun play(owner: String, files: List<File>, speeds: List<Float> = emptyList(), defaultSpeed: Float = 1f) {
         if (files.isEmpty() || files.any { !it.exists() }) {
             mutable.value = PlaybackState(owner = owner, error = "Berkas audio tidak ditemukan. Buat ulang VN."); return
         }
         if (mutable.value.owner != owner) {
             player.stop()
+            trackSpeeds = speeds.map { it.coerceIn(.5f, 2f) }
+            defaultTrackSpeed = defaultSpeed.coerceIn(.5f, 2f)
+            val firstSpeed = trackSpeeds.firstOrNull() ?: defaultTrackSpeed
+            player.setPlaybackSpeed(firstSpeed)
             player.setMediaItems(files.map { MediaItem.fromUri(android.net.Uri.fromFile(it)) })
-            mutable.value = PlaybackState(owner = owner, count = files.size, speed = player.playbackParameters.speed)
+            mutable.value = PlaybackState(owner = owner, count = files.size, speed = firstSpeed)
             player.prepare(); player.play()
         } else if (player.isPlaying) player.pause() else {
             if (player.playbackState == Player.STATE_ENDED) player.seekTo(0, 0)
@@ -47,7 +58,7 @@ class KaiPlayer(context: Context, private val scope: CoroutineScope) {
         updateTicker()
     }
     fun pause() { player.pause(); ticker?.cancel(); publish() }
-    fun stop() { player.stop(); player.clearMediaItems(); ticker?.cancel(); mutable.value = PlaybackState(speed = player.playbackParameters.speed) }
+    fun stop() { player.stop(); player.clearMediaItems(); trackSpeeds = emptyList(); defaultTrackSpeed = 1f; ticker?.cancel(); mutable.value = PlaybackState(speed = player.playbackParameters.speed) }
     fun seek(position: Long) { player.seekTo(position.coerceIn(0, mutable.value.duration)); publish() }
     fun next() { if (player.hasNextMediaItem()) player.seekToNextMediaItem() }
     fun previous() { if (player.hasPreviousMediaItem()) player.seekToPreviousMediaItem() else player.seekTo(0) }

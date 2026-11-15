@@ -40,12 +40,27 @@ Afeksi dan roleplay tidak boleh memaksa ketergantungan, mengisolasi pengguna, at
     }
 
     fun voice(profile: VoiceProfile): String {
-        val styles = StudioTraits.voice.filter { profile.value(it.key) !in 35..65 }
+        val style = StudioTraits.voiceStyles.firstOrNull { it.id == profile.voiceStyle }
+            ?: StudioTraits.voiceStyles.first()
+        val pitch = when {
+            profile.pitch > 60 -> "light and fairly high vocal register"
+            profile.pitch < 40 -> "medium-low vocal register"
+            else -> "moderate vocal register"
+        }
+        val pace = when {
+            profile.speed > 67 -> "slightly faster pacing"
+            profile.speed < 35 -> "slightly slower pacing with natural pauses"
+            else -> "natural conversational pacing"
+        }
+        val traits = StudioTraits.voice.filter { profile.value(it.key) !in 35..65 }
             .sortedByDescending { kotlin.math.abs(profile.value(it.key) - 50) }
             .joinToString("; ") { if (profile.value(it.key) < 35) it.low else it.high }
-        return "Read the exact transcript, preserving its language. Keep the selected voice identity consistent. " +
-            (styles.ifBlank { "Natural conversational delivery" }) + ". " +
-            profile.description.take(700) + " Do not read these delivery instructions aloud. Do not add words or sound effects."
+        val extra = profile.description.ifBlank { StudioTraits.defaultVoiceDescription }
+        return "Voice actor direction: ${style.instruction}; ${pitch}; ${pace}. " +
+            (traits.takeIf { it.isNotBlank() }?.let { "Additional delivery: $it. " } ?: "") +
+            "Extra direction: ${extra.take(700)}. Speak Indonesian clearly, and any Japanese expressions naturally. " +
+            "Read only the exact dialogue, preserving its language. Keep the selected voice identity consistent. " +
+            "Do not read these delivery instructions aloud. Do not add words or sound effects."
     }
 
     private fun identity(character: CharacterSpec): JsonObject = buildJsonObject {

@@ -176,7 +176,12 @@ import kotlinx.coroutines.launch
         }
         if (ai && message.status != MessageStatus.GENERATING && message.text.isNotBlank()) {
             Spacer(Modifier.height(6.dp))
-            if (message.audio.isNotEmpty()) AudioPlayerBar(vm, message.id, message.audio.map { vm.graph.audio.file(it.fileName) }, message.audio.map { it.speaker })
+            if (message.audio.isNotEmpty()) AudioPlayerBar(
+                vm, message.id, message.audio.map { vm.graph.audio.file(it.fileName) },
+                message.audio.map { it.speaker },
+                message.audio.map { it.profileSnapshot.playbackSpeed() },
+                message.audio.firstOrNull()?.profileSnapshot?.playbackSpeed() ?: 1f
+            )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (message.audioGenerating) {
                     CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)

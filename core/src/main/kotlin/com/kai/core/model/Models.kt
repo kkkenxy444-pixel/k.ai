@@ -22,15 +22,20 @@ data class Personality(val values: Map<String, Int> = emptyMap()) {
 @Serializable
 data class VoiceProfile(
     val id: String = newId(),
-    val name: String = "Natural",
-    val voiceId: String = "Kore",
+    val name: String = "Kawaii • Leda",
+    val voiceId: String = "Leda",
     val model: String = "",
     val transport: TtsTransport = TtsTransport.GENERATE_CONTENT,
+    val voiceStyle: String = "kawaii",
+    val pitch: Int = 65,
+    val speed: Int = 50,
     val values: Map<String, Int> = emptyMap(),
-    val description: String = "",
+    val description: String = "Suara perempuan bergaya anime yang imut, manja, ekspresif, lembut, dan natural.",
 ) {
     fun value(key: String): Int = (values[key] ?: 50).coerceIn(0, 100)
     fun with(key: String, value: Int) = copy(values = values + (key to value.coerceIn(0, 100)))
+    /** Matches the reference app's 0.8 + (speed * 0.004) playback curve. */
+    fun playbackSpeed(): Float = 0.8f + speed.coerceIn(0, 100) * 0.004f
     fun independentCopy() = copy(id = newId())
 }
 
@@ -131,7 +136,27 @@ data class GeminiModel(
 
 data class Trait(val key: String, val label: String, val low: String, val high: String)
 
+data class VoiceStyleOption(val id: String, val label: String, val description: String, val instruction: String)
+data class VoiceIdentityOption(val id: String, val character: String)
+
 object StudioTraits {
+    val voiceStyles = listOf(
+        VoiceStyleOption("kawaii", "Kawaii", "Imut, ringan, ekspresif", "cute, bright, expressive and playful anime-style feminine voice"),
+        VoiceStyleOption("soft", "Soft girl", "Lembut dan pelan", "gentle, softly spoken, sweet youthful feminine voice"),
+        VoiceStyleOption("genki", "Genki", "Ceria dan energik", "high-energy, cheerful and lively genki anime girl voice"),
+        VoiceStyleOption("tsundere", "Tsundere", "Gengsi dan malu-malu", "playfully flustered, shy-but-caring anime girl voice"),
+        VoiceStyleOption("oneesan", "Onee-san", "Hangat dan dewasa", "mature, elegant and warm feminine voice"),
+        VoiceStyleOption("custom", "Custom", "Arahan suara buatanmu", "custom feminine character voice matching the custom direction"),
+    )
+    val voiceIdentities = listOf(
+        VoiceIdentityOption("Leda", "Youthful"), VoiceIdentityOption("Aoede", "Breezy"),
+        VoiceIdentityOption("Zephyr", "Bright"), VoiceIdentityOption("Achernar", "Soft"),
+        VoiceIdentityOption("Autonoe", "Bright"), VoiceIdentityOption("Vindemiatrix", "Gentle"),
+        VoiceIdentityOption("Laomedeia", "Upbeat"), VoiceIdentityOption("Callirrhoe", "Easy-going"),
+        VoiceIdentityOption("Kore", "Firm"), VoiceIdentityOption("Sulafat", "Warm"),
+        VoiceIdentityOption("Sadachbia", "Lively"), VoiceIdentityOption("Erinome", "Clear"),
+    )
+    val defaultVoiceDescription = "Suara perempuan bergaya anime yang imut, manja, ekspresif, lembut, dan natural."
     val personality = listOf(
         Trait("friendly", "Keramahan", "sopan dengan jarak wajar", "hangat dan mudah diajak berbicara"),
         Trait("clingy", "Clingy", "mandiri dan memberi ruang", "sesekali mencari kedekatan tanpa menuntut balasan atau mengisolasi pengguna"),
@@ -155,8 +180,6 @@ object StudioTraits {
         Trait("cheerful", "Ceria", "composed mood", "bright, cheerful mood"),
         Trait("playful", "Playful", "straightforward delivery", "lightly teasing and playful delivery"),
         Trait("warm", "Hangat", "neutral warmth", "warm, reassuring vocal tone"),
-        Trait("pitch", "Arahan pitch", "slightly lower register within this voice's natural range", "slightly higher register within this voice's natural range"),
-        Trait("speed", "Kecepatan bicara", "slower pace with natural pauses", "brisk but clearly intelligible pace"),
         Trait("emotion", "Intensitas emosi", "restrained emotion", "emotionally engaged without exaggeration"),
     )
     val personalityPresets = linkedMapOf(
@@ -173,10 +196,10 @@ object StudioTraits {
     val voicePresets = linkedMapOf(
         "Natural" to emptyMap(),
         "Clingy & Manja" to mapOf("clingy" to 85, "affectionate" to 85, "warm" to 75),
-        "Soft Spoken" to mapOf("soft" to 90, "speed" to 35, "emotion" to 35),
-        "Assertive" to mapOf("assertive" to 85, "pitch" to 40, "emotion" to 60),
+        "Soft Spoken" to mapOf("soft" to 90, "emotion" to 35),
+        "Assertive" to mapOf("assertive" to 85, "emotion" to 60),
         "Tsundere" to mapOf("assertive" to 70, "playful" to 65, "affectionate" to 30),
-        "Cheerful" to mapOf("cheerful" to 90, "expressive" to 80, "speed" to 60),
+        "Cheerful" to mapOf("cheerful" to 90, "expressive" to 80),
         "Calm" to mapOf("speed" to 35, "soft" to 75, "emotion" to 25),
         "Custom" to emptyMap(),
     )

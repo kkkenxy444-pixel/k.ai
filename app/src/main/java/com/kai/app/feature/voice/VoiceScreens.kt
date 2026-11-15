@@ -25,7 +25,7 @@ import java.io.File
 @Composable fun VoiceLibraryScreen(vm: KaiViewModel) {
     val profiles by vm.voices.collectAsStateWithLifecycle()
     var deleting by remember { mutableStateOf<String?>(null) }
-    Page("Voice Studio", action = { TextButton(onClick = { vm.openVoice(VoiceProfile(name = "Suara baru", model = vm.prefs.value.ttsModel)) }) {
+    Page("Voice Studio", action = { TextButton(onClick = { vm.openVoice(VoiceProfile(name = "Kawaii • Leda", model = vm.prefs.value.ttsModel)) }) {
         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp)); Text("Baru")
     } }) {
         Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.primaryContainer) {
@@ -58,7 +58,7 @@ import java.io.File
         if (profiles.isEmpty()) KaiPanel(Modifier.fillMaxWidth()) {
             Text("Belum ada profil", style = MaterialTheme.typography.titleMedium)
             Hint("Buat suara pertama dari preset di atas, atau mulai dari profil kosong.")
-            TextButton(onClick = { vm.openVoice(VoiceProfile(name = "Suara baru", model = vm.prefs.value.ttsModel)) }) { Text("Buat suara") }
+            TextButton(onClick = { vm.openVoice(VoiceProfile(name = "Kawaii • Leda", model = vm.prefs.value.ttsModel)) }) { Text("Buat suara") }
         }
         profiles.forEach { profile ->
             Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -100,7 +100,7 @@ import java.io.File
     val previews by vm.previews.collectAsStateWithLifecycle()
     val models by vm.models.collectAsStateWithLifecycle()
     var picker by remember { mutableStateOf(false) }
-    var testSentence by rememberSaveable { mutableStateOf("Aku di sini. Ceritakan bagaimana harimu, pelan-pelan saja, aku mendengarkan.") }
+    var testSentence by rememberSaveable { mutableStateOf("Ehhh~ kamu datang juga! Mouu~ aku dari tadi pengen cerita sama kamu, hehe!") }
     var designDescription by rememberSaveable { mutableStateOf("") }
     var createConfirm by remember { mutableStateOf(false) }
     // Protocol capability registry, not a model-selection list. Only officially documented design families.
@@ -138,19 +138,37 @@ import java.io.File
             OutlinedButton(onClick = vm::refreshVoices, modifier = Modifier.fillMaxWidth()) { Text("Periksa akses & muat katalog suara") }
         }
         OperationBanner(vm)
-        Section("Preset delivery")
+        Section("Gaya suara karakter", "Pilih warna dasar suara seperti pada Yuna AI, lalu sesuaikan identitas dan delivery-nya.")
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            StudioTraits.voiceStyles.forEach { style ->
+                FilterChip(
+                    selected = profile.voiceStyle == style.id,
+                    onClick = { vm.setVoice(profile.copy(voiceStyle = style.id)) },
+                    label = { Text(style.label) }
+                )
+            }
+        }
+        Hint(StudioTraits.voiceStyles.firstOrNull { it.id == profile.voiceStyle }?.description.orEmpty())
+        Section("Preset karakter suara")
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             StudioTraits.voicePresets.forEach { (name, values) -> AssistChip(onClick = { vm.setVoice(profile.copy(values = values)) }, label = { Text(name) }) }
         }
-        Section("Karakter saat berbicara", "Geser untuk menyesuaikan gaya pengucapan. Kamu bisa membuatnya manja, clingy, atau tegas.")
+        Section("Pitch & kecepatan", "Pitch memberi arahan register vokal. Kecepatan mengarahkan tempo TTS dan menjadi kecepatan awal saat VN diputar.")
+        VoiceTuningSlider("Pitch", profile.pitch, "Register lebih rendah", "Register lebih tinggi") {
+            vm.setVoice(profile.copy(pitch = it))
+        }
+        VoiceTuningSlider("Kecepatan bicara", profile.speed, "Lebih pelan", "Lebih cepat") {
+            vm.setVoice(profile.copy(speed = it))
+        }
+        Section("Karakter saat berbicara", "Geser untuk menyesuaikan ekspresi dan sikap suara. Kamu bisa membuatnya manja, clingy, atau tegas.")
         KaiPanel(Modifier.fillMaxWidth()) {
             StudioTraits.voice.forEach { trait ->
                 TraitSlider(trait, profile.value(trait.key)) { vm.setVoice(profile.with(trait.key, it)) }
             }
         }
         Hint("Skala 0–100 diterjemahkan menjadi arahan TTS. Ini bukan pengendali akustik numerik yang dijamin Gemini.")
-        Field("Arahan delivery tambahan", profile.description, { vm.setVoice(profile.copy(description = it)) }, 3,
-            "Contoh: Bahasa Indonesia natural, nada lembut dan jelas. Jangan meminta peniruan orang nyata tanpa izin.", max = 700)
+        Field("Prompt suara tambahan", profile.description, { vm.setVoice(profile.copy(description = it)) }, 3,
+            "Contoh: Suara perempuan anime yang imut, manja, ekspresif, lembut, dan natural.", max = 700)
         Section("Dengarkan hasilnya", "Coba kalimat yang sama untuk membandingkan dua konfigurasi terakhir. Pembuatan audio memakai kuota Gemini.")
         Field("Kalimat uji", testSentence, { testSentence = it }, 3, max = 3000)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -182,7 +200,7 @@ import java.io.File
     }
     if (picker) ModalBottomSheet(onDismissRequest = { picker = false }) {
         var search by remember { mutableStateOf("") }
-        val all = (StudioTraits.builtInVoices.map { CatalogVoice(it, it, "Suara bawaan terdokumentasi; akses divalidasi saat preview.") } +
+        val all = (StudioTraits.voiceIdentities.map { CatalogVoice(it.id, it.id, it.character) } +
             if (profile.transport == TtsTransport.INTERACTIONS) catalog else emptyList()).distinctBy { it.id }
         Column(Modifier.fillMaxWidth().fillMaxHeight(.85f).padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("Pilih identitas suara", style = MaterialTheme.typography.titleLarge)
@@ -234,6 +252,22 @@ import java.io.File
             }
             if (state.error.isNotBlank()) Hint(state.error, true)
         } else if (files.size > 1) Hint("${files.size} potongan audio · suara karakter diputar berurutan")
+    }
+}
+
+@Composable private fun VoiceTuningSlider(
+    label: String, value: Int, lowLabel: String, highLabel: String, onChange: (Int) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text(label, style = MaterialTheme.typography.labelLarge)
+            Text("$value%", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        }
+        Slider(value = value.toFloat(), onValueChange = { onChange(it.toInt()) }, valueRange = 0f..100f, steps = 99)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(lowLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(highLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }
 

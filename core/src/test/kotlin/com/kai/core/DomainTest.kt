@@ -40,6 +40,40 @@ class DomainTest {
         assertEquals("Kore", soft.voiceId)
         assertFalse(PromptCompiler.voice(soft).contains("95"))
     }
+    @Test fun yunaReferenceVoiceDefaultsAreUsedForNewProfiles() {
+        val voice = VoiceProfile()
+        assertEquals("Leda", voice.voiceId)
+        assertEquals("kawaii", voice.voiceStyle)
+        assertEquals(65, voice.pitch)
+        assertEquals(50, voice.speed)
+        assertTrue(voice.description.contains("anime"))
+        assertEquals(1.0f, voice.playbackSpeed(), .001f)
+    }
+    @Test fun referenceVoiceStylesCompileIntoDistinctTtsDirections() {
+        val base = VoiceProfile()
+        val kawaii = PromptCompiler.voice(base)
+        val soft = PromptCompiler.voice(base.copy(voiceStyle = "soft"))
+        val genki = PromptCompiler.voice(base.copy(voiceStyle = "genki"))
+        val tsundere = PromptCompiler.voice(base.copy(voiceStyle = "tsundere"))
+        val oneesan = PromptCompiler.voice(base.copy(voiceStyle = "oneesan"))
+        assertTrue(kawaii.contains("kawaii"))
+        assertTrue(soft.contains("softly spoken"))
+        assertTrue(genki.contains("high-energy"))
+        assertTrue(tsundere.contains("shy-but-caring"))
+        assertTrue(oneesan.contains("mature, elegant"))
+        assertNotEquals(kawaii, soft)
+    }
+    @Test fun referencePitchAndSpeedAffectTtsDirectionAndPlayback() {
+        val base = VoiceProfile()
+        val highFast = PromptCompiler.voice(base.copy(pitch = 90, speed = 90))
+        val lowSlow = PromptCompiler.voice(base.copy(pitch = 20, speed = 20))
+        assertTrue(highFast.contains("fairly high vocal register"))
+        assertTrue(highFast.contains("slightly faster pacing"))
+        assertTrue(lowSlow.contains("medium-low vocal register"))
+        assertTrue(lowSlow.contains("slightly slower pacing"))
+        assertEquals(.8f, base.copy(speed = 0).playbackSpeed(), .001f)
+        assertEquals(1.2f, base.copy(speed = 100).playbackSpeed(), .001f)
+    }
     @Test fun eachVoiceControlHasAnEffectOutsideTheNeutralBand() {
         StudioTraits.voice.forEach { trait ->
             assertNotEquals(trait.key, PromptCompiler.voice(VoiceProfile()), PromptCompiler.voice(VoiceProfile().with(trait.key, 95)))
