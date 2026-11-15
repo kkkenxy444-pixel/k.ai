@@ -1,0 +1,4 @@
+data: {"candidates":[{"content":{"role":"model","parts":[{"text":"Halo, "}]}}]}
+
+data: {"candidates":[{"content":{"role":"model","parts":[{"text":"aku mendengarkan."}]},"finishReason":"STOP"}]}
+

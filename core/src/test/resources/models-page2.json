@@ -1,0 +1,1 @@
+{"models":[{"name":"models/example-tts","displayName":"Example TTS","description":"Text-to-speech model fixture","supportedGenerationMethods":["generateContent"]},{"name":"models/example-embedding","supportedGenerationMethods":["embedContent"]}]}
