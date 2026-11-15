@@ -15,7 +15,7 @@ chmod +x gradlew
 ./gradlew :core:test :app:assembleDebug :app:lintDebug
 ```
 
-On Windows use `gradlew.bat`. The official Gradle 9.6.0 wrapper and its JAR are included, with a pinned distribution SHA-256. First build requires access to Google's Maven repository, Maven Central, and the Gradle distribution server. Debug APK output: `app/build/outputs/apk/debug/app-debug.apk`.
+On Windows use `gradlew.bat`. The official Gradle 9.6.0 wrapper configuration is included with a pinned distribution SHA-256. Note: the binary `gradle/wrapper/gradle-wrapper.jar` is not stored in this repository; CI installs Gradle 9.6.0 directly via `gradle/actions/setup-gradle`, and locally you can run `gradle wrapper` once with Gradle 9.6.0 to regenerate the JAR (or invoke `gradle` directly). First build requires access to Google's Maven repository, Maven Central, and the Gradle distribution server. Debug APK output: `app/build/outputs/apk/debug/app-debug.apk`.
 
 For command-line SDK setup, the current [official Android CLI](https://developer.android.com/tools/agents/android-cli) replaces the deprecated `sdkmanager` launcher. After installing it, run these commands (one package per invocation):
 
