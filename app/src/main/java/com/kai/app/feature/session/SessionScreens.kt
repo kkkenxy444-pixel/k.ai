@@ -39,6 +39,7 @@ import com.kai.core.model.*
                     OutlinedButton(onClick = { vm.newSession(ChatMode.ROLEPLAY) }, modifier = Modifier.weight(1f)) { Text("Cerita baru") }
                 }
                 if (templates.isNotEmpty()) TextButton(onClick = { templateSheet = true }) { Text("Mulai dari template karakter") }
+                if (hasKey) TextButton(onClick = { vm.navigate("models") }) { Text("Pilih / ganti model Gemini") }
             }
             if (!hasKey) item {
                 OutlinedCard(onClick = { vm.navigate("api") }, modifier = Modifier.fillMaxWidth()) {
