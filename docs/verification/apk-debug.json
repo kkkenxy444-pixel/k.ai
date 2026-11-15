@@ -1,0 +1,16 @@
+{
+  "apk": "app-debug.apk",
+  "bytes": 17211583,
+  "sha256": "4eedfcd0904edf5722330ba9e2389f22248f59dfab375ec643ca37d3e9e0294f",
+  "permissions": [
+    "android.permission.INTERNET",
+    "com.kai.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.WAKE_LOCK"
+  ],
+  "credentials_pattern_found": false,
+  "backup": false,
+  "cleartext": false,
+  "release_checks": false,
+  "result": "PASS"
+}

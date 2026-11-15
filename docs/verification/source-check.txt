@@ -1,0 +1,1 @@
+PASS: internet-only manifest, disabled cleartext/backup, no runtime microphone/WebView/destructive migration/logging, no embedded Google-key pattern, pinned wrapper present.

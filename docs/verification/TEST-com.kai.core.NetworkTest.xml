@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.kai.core.NetworkTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-11-15T01:56:50.376Z" hostname="b51cf01a2000" time="3.422">
+  <properties/>
+  <testcase name="interactionsAudioResponseIsDecodedAndNotInvented" classname="com.kai.core.NetworkTest" time="0.255"/>
+  <testcase name="streamingReturnsRealProtocolDeltas" classname="com.kai.core.NetworkTest" time="0.042"/>
+  <testcase name="invalidCredentialCharactersNeverReachHeadersOrEchoInput" classname="com.kai.core.NetworkTest" time="0.005"/>
+  <testcase name="rawProviderMessageNeverLeaksKeyToDisplay" classname="com.kai.core.NetworkTest" time="0.003"/>
+  <testcase name="invalidKeyAndRestrictedModelAreDifferent" classname="com.kai.core.NetworkTest" time="0.002"/>
+  <testcase name="twoSpeakerPayloadPreservesExplicitVoiceMappings" classname="com.kai.core.NetworkTest" time="0.001"/>
+  <testcase name="longRetryAfterIsExposedWithoutBlockingOrRetrying" classname="com.kai.core.NetworkTest" time="0.008"/>
+  <testcase name="transientServiceRejectionRetriesBoundedly" classname="com.kai.core.NetworkTest" time="3.016"/>
+  <testcase name="modelDiscoveryFollowsPaginationAndUsesHeaderAuthentication" classname="com.kai.core.NetworkTest" time="0.056"/>
+  <testcase name="safetyBlocksAreNotTreatedAsEmptySuccess" classname="com.kai.core.NetworkTest" time="0.001"/>
+  <testcase name="dailyQuotaIsDistinctAndNeverRetried" classname="com.kai.core.NetworkTest" time="0.006"/>
+  <testcase name="missingKeyFailsBeforeAnyNetworkRequest" classname="com.kai.core.NetworkTest" time="0.003"/>
+  <testcase name="thinkingPartsAreNotShownAsUserFacingText" classname="com.kai.core.NetworkTest" time="0.003"/>
+  <testcase name="compatibleMultiSpeakerAudioUsesOneRealRequest" classname="com.kai.core.NetworkTest" time="0.009"/>
+  <testcase name="unsupportedCustomVoiceIsNotSentToLegacyEndpoint" classname="com.kai.core.NetworkTest" time="0.002"/>
+  <testcase name="legacyTtsRequestContainsActualVoiceAndCompiledStyle" classname="com.kai.core.NetworkTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

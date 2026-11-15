@@ -1,0 +1,16 @@
+{
+  "apk": "app-release-unsigned.apk",
+  "bytes": 2448787,
+  "sha256": "4ee78395791eb1ee39cf36197a665eb3aa9f0af71925c3170d206133faaa9e68",
+  "permissions": [
+    "android.permission.INTERNET",
+    "com.kai.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.WAKE_LOCK"
+  ],
+  "credentials_pattern_found": false,
+  "backup": false,
+  "cleartext": false,
+  "release_checks": true,
+  "result": "PASS"
+}
