@@ -8,9 +8,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.AutoStories
-import androidx.compose.material.icons.filled.ChatBubbleOutline
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -56,7 +56,7 @@ import com.kai.core.model.*
             },
             actions = {
                 TextButton(onClick = { vm.navigate("models") }, enabled = hasKey) {
-                    Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.Settings, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(5.dp)); Text("Model")
                 }
             },
@@ -89,7 +89,7 @@ import com.kai.core.model.*
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .8f))
                         }
-                        Icon(Icons.Default.ChatBubbleOutline, contentDescription = null,
+                        Icon(Icons.Default.Home, contentDescription = null,
                             modifier = Modifier.size(46.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .8f))
                     }
                 }
@@ -128,7 +128,7 @@ import com.kai.core.model.*
                 OutlinedTextField(query, { query = it }, modifier = Modifier.fillMaxWidth(),
                     singleLine = true, shape = RoundedCornerShape(18.dp),
                     placeholder = { Text("Cari karakter atau cerita") },
-                    leadingIcon = { Icon(Icons.Default.ChatBubbleOutline, contentDescription = null) })
+                    leadingIcon = { Icon(Icons.Default.Home, contentDescription = null) })
             }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -193,7 +193,7 @@ import com.kai.core.model.*
     Surface(onClick = onClick, modifier = modifier, shape = RoundedCornerShape(22.dp),
         color = if (roleplay) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh) {
         Column(Modifier.fillMaxWidth().padding(17.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-            Icon(if (roleplay) Icons.Default.AutoStories else Icons.Default.ChatBubbleOutline,
+            Icon(if (roleplay) Icons.Default.PlayArrow else Icons.Default.Home,
                 contentDescription = null, modifier = Modifier.size(25.dp),
                 tint = if (roleplay) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.primary)
             Spacer(Modifier.height(10.dp))

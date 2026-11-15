@@ -7,8 +7,8 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -184,7 +184,7 @@ import kotlinx.coroutines.launch
                     TextButton(onClick = { vm.graph.chat.cancelVoice(message.id) }) { Text("Batal") }
                 } else FilledTonalButton(onClick = { vm.graph.chat.generateVoice(message.id, spec.autoPlay) },
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
-                    Icon(Icons.Default.GraphicEq, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
                     Text(if (message.audio.isEmpty()) "Ubah ke VN" else "Buat ulang VN")
                 }

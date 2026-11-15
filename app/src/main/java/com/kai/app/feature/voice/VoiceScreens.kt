@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,7 +39,7 @@ import java.io.File
                     Text("Atur karakter, intonasi, dan cara AI berbicara.", style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .82f))
                 }
-                Icon(Icons.Default.GraphicEq, contentDescription = null, modifier = Modifier.size(60.dp),
+                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(60.dp),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer)
             }
         }
@@ -68,7 +67,7 @@ import java.io.File
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
                             Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
-                                Icon(Icons.Default.GraphicEq, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                                Icon(Icons.Default.PlayArrow, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
                             }
                         }
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -110,7 +109,7 @@ import java.io.File
         Surface(shape = RoundedCornerShape(26.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
             Row(Modifier.fillMaxWidth().padding(18.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                Icon(Icons.Default.GraphicEq, contentDescription = null, modifier = Modifier.size(42.dp),
+                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(42.dp),
                     tint = MaterialTheme.colorScheme.onSecondaryContainer)
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text("Voice Personality", style = MaterialTheme.typography.titleLarge,
