@@ -70,7 +70,7 @@ class DomainTest {
         assertTrue(highFast.contains("fairly high vocal register"))
         assertTrue(highFast.contains("slightly faster pacing"))
         assertTrue(lowSlow.contains("medium-low vocal register"))
-        assertTrue(lowSlow.contains("slightly slower pacing"))
+        assertTrue(lowSlow.contains("slower pace with natural pauses"))
         assertEquals(.8f, base.copy(speed = 0).playbackSpeed(), .001f)
         assertEquals(1.2f, base.copy(speed = 100).playbackSpeed(), .001f)
     }

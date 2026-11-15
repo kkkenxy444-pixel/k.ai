@@ -184,7 +184,7 @@ import java.io.File
                     Hint(preview.profile.model.removePrefix("models/"))
                     Text(preview.sentence, style = MaterialTheme.typography.bodySmall)
                     Hint(preview.profile.values.entries.joinToString(" · ") { "${StudioTraits.voice.firstOrNull { t -> t.key == it.key }?.label ?: it.key} ${it.value}" }.ifBlank { "Delivery natural" })
-                    AudioPlayerBar(vm, "preview-${preview.file.name}", listOf(preview.file))
+                    AudioPlayerBar(vm, "preview-${preview.file.name}", listOf(preview.file), defaultSpeed = preview.profile.playbackSpeed())
                     TextButton(onClick = { vm.setVoice(preview.profile.copy(id = profile.id, name = profile.name)) }) { Text("Pakai konfigurasi ${preview.label}") }
                 }
             }
@@ -221,13 +221,20 @@ import java.io.File
     if (createConfirm) ConfirmDialog("Buat suara di proyek Google?", "Deskripsi dikirim ke Gemini dan menghasilkan resource suara tersimpan. Permintaan memakai kuota akunmu. Billing tidak diubah. Hapus resource Google melalui AI Studio jika tidak diperlukan.", { createConfirm = false }, "Buat suara") { vm.designVoice(designDescription) }
 }
 
-@Composable fun AudioPlayerBar(vm: KaiViewModel, owner: String, files: List<File>, speakers: List<String> = emptyList()) {
+@Composable fun AudioPlayerBar(
+    vm: KaiViewModel,
+    owner: String,
+    files: List<File>,
+    speakers: List<String> = emptyList(),
+    playbackSpeeds: List<Float> = emptyList(),
+    defaultSpeed: Float = 1f,
+) {
     val state by vm.graph.player.state.collectAsStateWithLifecycle()
     val selected = state.owner == owner
     var speedMenu by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-            FilledTonalButton(onClick = { vm.graph.player.play(owner, files) }) { Text(if (selected && state.playing) "Jeda" else "Putar") }
+            FilledTonalButton(onClick = { vm.graph.player.play(owner, files, playbackSpeeds, defaultSpeed) }) { Text(if (selected && state.playing) "Jeda" else "Putar") }
             if (selected) {
                 TextButton(onClick = vm.graph.player::stop) { Text("Stop") }
                 TextButton(onClick = vm.graph.player::replay) { Text("Ulang") }
