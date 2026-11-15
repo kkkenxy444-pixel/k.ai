@@ -29,7 +29,8 @@ for path in ROOT.rglob("*"):
         for forbidden in ["android.webkit.WebView", "android.media.MediaRecorder", "android.speech.SpeechRecognizer", "fallbackToDestructiveMigration(", "HttpLoggingInterceptor"]:
             assert forbidden not in text, (path, forbidden)
 assert not bad, "Possible embedded credentials in: " + ", ".join(bad)
-assert (ROOT / "gradle/wrapper/gradle-wrapper.jar").is_file()
+# The wrapper JAR is not stored in this repository (binary); CI installs Gradle directly.
+assert (ROOT / "gradle/wrapper/gradle-wrapper.properties").is_file()
 properties = (ROOT / "gradle/wrapper/gradle-wrapper.properties").read_text()
 assert "distributionSha256Sum=" in properties
 print("PASS: internet-only manifest, disabled cleartext/backup, no runtime microphone/WebView/destructive migration/logging, no embedded Google-key pattern, pinned wrapper present.")
