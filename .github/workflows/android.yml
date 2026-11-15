@@ -1,0 +1,64 @@
+name: Android validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '9.6.0'
+      - name: Install SDK packages
+        shell: bash
+        run: |
+          curl --fail --location --retry 2 https://dl.google.com/android/cli/latest/linux_x86_64/android-cli --output "$RUNNER_TEMP/android-cli"
+          chmod +x "$RUNNER_TEMP/android-cli"
+          "$RUNNER_TEMP/android-cli" --no-metrics --sdk="$ANDROID_HOME" sdk install 'platforms;android-37.0'
+          "$RUNNER_TEMP/android-cli" --no-metrics --sdk="$ANDROID_HOME" sdk install 'build-tools;36.0.0'
+          "$RUNNER_TEMP/android-cli" --no-metrics --sdk="$ANDROID_HOME" sdk install 'platform-tools'
+      - name: Check source safety invariants
+        run: python3 scripts/check_source.py
+      - name: Unit tests, APK and instrumentation compilation, lint
+        run: gradle :core:test :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug :app:assembleRelease --stacktrace
+      - name: Inspect APK permissions and credential patterns
+        run: |
+          python3 scripts/check_apk.py app/build/outputs/apk/debug/app-debug.apk --aapt2 "$ANDROID_HOME/build-tools/36.0.0/aapt2"
+          python3 scripts/check_apk.py app/build/outputs/apk/release/app-release-unsigned.apk --aapt2 "$ANDROID_HOME/build-tools/36.0.0/aapt2" --release
+      - name: Preserve validation reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: kai-validation
+          path: |
+            core/build/reports/tests/
+            core/build/test-results/
+            app/build/reports/
+          retention-days: 14
+      - name: Debug APK for internal verification
+        uses: actions/upload-artifact@v7
+        with:
+          name: kai-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+
+# This workflow never calls Gemini and never publishes a release.
+# Add separate, protected signing/distribution gates after manual device/API acceptance.
