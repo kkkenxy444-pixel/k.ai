@@ -55,6 +55,7 @@ import com.kai.core.model.*
             OutlinedButton(onClick = { vm.testKey(key) }, enabled = (key.isNotBlank() || hasKey) && !operation.busy) { Text("Uji koneksi") }
         }
         OperationBanner(vm)
+        Button(onClick = { vm.navigate("models") }, enabled = hasKey, modifier = Modifier.fillMaxWidth()) { Text("Pilih model Gemini untuk Chat, Roleplay & VN") }
         OutlinedButton(onClick = vm::refreshModels, enabled = hasKey && !operation.busy, modifier = Modifier.fillMaxWidth()) { Text("Segarkan model") }
         TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, "https://aistudio.google.com/apikey".toUri())) }) { Text("Buat key di Google AI Studio") }
         Hint("k.ai tidak mengaktifkan billing. Katalog model tidak menyatakan hak Free Tier atau sisa kuota. Jika proyekmu sudah memakai billing, permintaan dapat dikenai biaya sesuai pengaturan Google.")
@@ -92,8 +93,16 @@ import com.kai.core.model.*
 
 @Composable fun ModelsScreen(vm: KaiViewModel) {
     val prefs by vm.prefs.collectAsStateWithLifecycle()
+    val hasKey by vm.hasKey.collectAsStateWithLifecycle()
+    val models by vm.models.collectAsStateWithLifecycle()
+    LaunchedEffect(hasKey) {
+        if (hasKey && vm.models.value.isEmpty()) vm.refreshModels()
+    }
     Page("Pilihan model", vm::back) {
-        Hint("Default hanya dipakai saat membuat sesi atau profil baru. Sesi yang sudah ada mempertahankan modelnya.")
+        Hint("Pilih dari daftar model Gemini yang tersedia untuk API key milikmu. Tidak perlu mengetik identifier model.")
+        if (!hasKey) OutlinedButton(onClick = { vm.navigate("api") }) { Text("Masukkan API key terlebih dahulu") }
+        if (hasKey && models.isEmpty()) Hint("Katalog masih kosong. Model akan dimuat otomatis, atau tekan Segarkan katalog.")
+        Hint("Pilihan ini menjadi default untuk sesi baru. Sesi lama mempertahankan modelnya.")
         ModelField(vm, "Normal Chat", prefs.normalModel, "text") { vm.preference("normalModel", it.name) }
         ModelField(vm, "Roleplay", prefs.roleplayModel, "text") { vm.preference("roleplayModel", it.name) }
         ModelField(vm, "Voice / TTS", prefs.ttsModel, "tts") { vm.preference("ttsModel", it.name) }
