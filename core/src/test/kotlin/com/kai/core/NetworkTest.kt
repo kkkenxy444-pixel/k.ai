@@ -27,6 +27,23 @@ class NetworkTest {
         assertEquals("fixture-key-not-a-real-secret", first.getHeader("x-goog-api-key"))
         assertFalse(first.path!!.contains("key=")); assertTrue(second.path!!.contains("pageToken=page-two"))
     }
+    @Test fun newAuthorizationKeyFormatIsAcceptedAndSentViaHeader() = runBlocking {
+        val key = "AQ.fixture-auth-key-that-is-not-real"
+        val authApi = GeminiApi({ key }, server.url("/v1beta/").toString())
+        server.enqueue(MockResponse().setBody(fixture("models-page2.json")))
+        val result = authApi.listModels()
+        assertTrue(result.isNotEmpty())
+        val sent = server.takeRequest()
+        assertEquals(key, sent.getHeader("x-goog-api-key"))
+        assertFalse(sent.path!!.contains("key="))
+    }
+    @Test fun oldStandardKeyFormatRemainsSupported() = runBlocking {
+        val key = "AIzaFixtureNotARealApiKey123456789"
+        val legacyApi = GeminiApi({ key }, server.url("/v1beta/").toString())
+        server.enqueue(MockResponse().setBody(fixture("models-page2.json")))
+        assertTrue(legacyApi.listModels().isNotEmpty())
+        assertEquals(key, server.takeRequest().getHeader("x-goog-api-key"))
+    }
     @Test fun streamingReturnsRealProtocolDeltas() = runBlocking {
         server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream").setBody(fixture("stream.sse")))
         assertEquals("Halo, aku mendengarkan.", api.stream("models/example-flash-lite", "system", history()).toList().joinToString(""))

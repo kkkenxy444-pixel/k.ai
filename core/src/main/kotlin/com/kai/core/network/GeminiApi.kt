@@ -41,7 +41,7 @@ class GeminiApi(
     private fun request(path: String, body: JsonObject? = null, key: String? = null): Request {
         val secret = key ?: keyProvider()
         if (secret.isNullOrBlank()) throw ApiFailure(FailureKind.MISSING_KEY, "Tambahkan API key pribadimu di Pengaturan Gemini.")
-        if (!Regex("[A-Za-z0-9_-]{10,512}").matches(secret)) {
+        if (!Regex("[A-Za-z0-9._-]{10,512}").matches(secret)) {
             throw ApiFailure(FailureKind.INVALID_KEY, "Format API key tidak valid. Salin ulang key dari Google AI Studio.")
         }
         return Request.Builder().url(baseUrl + path)

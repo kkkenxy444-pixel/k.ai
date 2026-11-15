@@ -32,7 +32,7 @@ class KeyVault(context: Context) {
     }
     @Synchronized fun save(value: String) {
         val cleaned = value.trim()
-        require(Regex("[A-Za-z0-9_-]{10,512}").matches(cleaned)) { "Format API key tidak valid." }
+        require(Regex("[A-Za-z0-9._-]{10,512}").matches(cleaned)) { "Format API key tidak valid." }
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, key())
         val encrypted = byteArrayOf(1) + cipher.iv + cipher.doFinal(cleaned.toByteArray())

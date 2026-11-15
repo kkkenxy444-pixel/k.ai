@@ -50,8 +50,9 @@ import com.kai.core.model.*
         OutlinedTextField(key, { key = it.take(512) }, label = { Text(if (hasKey) "API key pengganti" else "API key pribadi") },
             singleLine = true, visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(autoCorrectEnabled = false, keyboardType = KeyboardType.Password), modifier = Modifier.fillMaxWidth())
+        Hint("Tempel key lengkap dari AI Studio. Format baru AQ. dan format lama AIza didukung. Jika penyimpanan gagal, teks tetap ada untuk diperbaiki.")
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = { vm.saveKey(key); key = "" }, enabled = key.isNotBlank() && !operation.busy) { Text("Simpan key") }
+            Button(onClick = { vm.saveKey(key) }, enabled = key.isNotBlank() && !operation.busy) { Text("Simpan key") }
             OutlinedButton(onClick = { vm.testKey(key) }, enabled = (key.isNotBlank() || hasKey) && !operation.busy) { Text("Uji koneksi") }
         }
         OperationBanner(vm)
