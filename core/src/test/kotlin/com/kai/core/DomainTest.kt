@@ -34,7 +34,7 @@ class DomainTest {
     }
     @Test fun vocalGuidanceChangesWithControlsAndKeepsIdentitySeparate() {
         val base = VoiceProfile(voiceId = "Kore")
-        val soft = base.with("soft", 95).with("speed", 10)
+        val soft = base.copy(speed = 10).with("soft", 95)
         assertNotEquals(PromptCompiler.voice(base), PromptCompiler.voice(soft))
         assertTrue(PromptCompiler.voice(soft).contains("slower pace"))
         assertEquals("Kore", soft.voiceId)
